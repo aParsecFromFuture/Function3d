@@ -10,40 +10,43 @@
 
 	function myfunction(size){
 		this.coords = [];
-		for(i = -30;i < 30;i++){
-			for(j = -30;j < 30;j++){
+		for(i = 0;i < size;i++){
+			this.coords[i] = new Array(size);
+			for(j = 0;j < size;j++){
 				var x = i*5;
 				var y = j*5;
-				var z = 10*Math.sin(x/10) + 10*Math.cos(y/10);//(x*x - y*y) / 200;
-				this.coords.push(new vector(x,y,z));
+				var z = 10*Math.sin(x/10) + 10*Math.cos(y/10);
+				this.coords[i][j] = new vector(x,y,z);
 			}
 		}
 	        //döndürme fonksiyonu
 	        this.rotate = function(type,angle){
 			for(i = 0;i < this.coords.length;i++){
-			var v = this.coords[i];
-			var x = v.x;
-			var y = v.y;
-			var z = v.z;
-			switch(type){
-			case "x" :
-				v.y = y*Math.cos(angle) - z*Math.sin(angle);
-				v.z = y*Math.sin(angle) + z*Math.cos(angle);
-				break;
-			case "y" :
-				v.x = x*Math.cos(angle) - z*Math.sin(angle);
-				v.z = x*Math.sin(angle) + z*Math.cos(angle);
-				break;
-				case "z" :
-				v.x = x*Math.cos(angle) - y*Math.sin(angle);
-				v.y = x*Math.sin(angle) + y*Math.cos(angle);
-			 	break;
-				}
-		   	}
+				for(j = 0;j < this.coords[i].length;j++){
+					var v = this.coords[i][j];
+					var x = v.x;
+					var y = v.y;
+					var z = v.z;
+					switch(type){
+						case "x" :
+						v.y = y*Math.cos(angle) - z*Math.sin(angle);
+						v.z = y*Math.sin(angle) + z*Math.cos(angle);
+						break;
+						case "y" :
+						v.x = x*Math.cos(angle) - z*Math.sin(angle);
+						v.z = x*Math.sin(angle) + z*Math.cos(angle);
+						break;
+						case "z" :
+						v.x = x*Math.cos(angle) - y*Math.sin(angle);
+						v.y = x*Math.sin(angle) + y*Math.cos(angle);
+				 		break;
+					}
+			   	}
+			}
 	     	}
 	}
 
-	var myfunc = new myfunction(100,document.getElementById("myCanvas"));
+	var myfunc = new myfunction(60,document.getElementById("myCanvas"));
 
 	function animate(myfunc){
 		var c = document.getElementById("myCanvas");
@@ -53,12 +56,31 @@
 	   	ctx.translate(c.width / 2,c.height / 2);
 	 	myfunc.rotate("x",0.02);
 	  	myfunc.rotate("y",0.02);
-	     	myfunc.rotate("z",0.02);
-	     	myfunc.coords.forEach(function(v){
-			ctx.moveTo(v.x,v.y);
-			ctx.arc(v.x,v.y,1,0,2*Math.PI);
-		});
-	ctx.fill();
+	     	myfunc.rotate("z",0.01);
+	     	/*myfunc.coords.forEach(function(c){
+			c.forEach(function(v){
+				ctx.moveTo(v.x,v.y);
+				ctx.arc(v.x,v.y,1,0,2*Math.PI);
+			});
+		});*/
+
+		for(i = 0;i < myfunc.coords.length;i++){
+			var start = myfunc.coords[i][0];
+			ctx.moveTo(start.x,start.y);
+			for(j = 0;j < myfunc.coords[i].length;j++){
+				ctx.lineTo(myfunc.coords[i][j].x,myfunc.coords[i][j].y);
+			}
+		}
+
+		for(i = 0;i < myfunc.coords[0].length;i++){
+			var start = myfunc.coords[0][i];
+			ctx.moveTo(start.x,start.y);
+			for(j = 0;j < myfunc.coords.length;j++){
+				ctx.lineTo(myfunc.coords[j][i].x,myfunc.coords[j][i].y);
+			}
+		}
+
+	ctx.stroke();
 	ctx.resetTransform();
 	}
 	setInterval(function(){animate(myfunc)},30);
